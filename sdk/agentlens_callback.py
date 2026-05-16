@@ -18,7 +18,12 @@ Usage (standalone)
 
     # Record an LLM call
     cb.on_llm_start(model="gpt-4o", input_text="Hello")
-    cb.on_llm_end(output_text="Hi there!", prompt_tokens=5, completion_tokens=3, cost_usd=0.0012)
+    cb.on_llm_end(
+        output_text="Hi there!",
+        prompt_tokens=5,
+        completion_tokens=3,
+        cost_usd=0.0012,
+    )
 
     # Finish the trace
     cb.on_trace_end(status="success")
@@ -51,15 +56,15 @@ logger = logging.getLogger("agentlens.sdk")
 # ---------------------------------------------------------------------------
 
 MODEL_PRICING: dict[str, dict[str, float]] = {
-    "gpt-4o":            {"prompt": 0.005,   "completion": 0.015},
-    "gpt-4o-mini":       {"prompt": 0.00015, "completion": 0.0006},
-    "gpt-4-turbo":       {"prompt": 0.01,    "completion": 0.03},
-    "gpt-4":             {"prompt": 0.03,    "completion": 0.06},
-    "gpt-3.5-turbo":     {"prompt": 0.0005,  "completion": 0.0015},
-    "claude-3-opus":     {"prompt": 0.015,   "completion": 0.075},
-    "claude-3-sonnet":   {"prompt": 0.003,   "completion": 0.015},
-    "claude-3-haiku":    {"prompt": 0.00025, "completion": 0.00125},
-    "claude-3.5-sonnet": {"prompt": 0.003,   "completion": 0.015},
+    "gpt-4o": {"prompt": 0.005, "completion": 0.015},
+    "gpt-4o-mini": {"prompt": 0.00015, "completion": 0.0006},
+    "gpt-4-turbo": {"prompt": 0.01, "completion": 0.03},
+    "gpt-4": {"prompt": 0.03, "completion": 0.06},
+    "gpt-3.5-turbo": {"prompt": 0.0005, "completion": 0.0015},
+    "claude-3-opus": {"prompt": 0.015, "completion": 0.075},
+    "claude-3-sonnet": {"prompt": 0.003, "completion": 0.015},
+    "claude-3-haiku": {"prompt": 0.00025, "completion": 0.00125},
+    "claude-3.5-sonnet": {"prompt": 0.003, "completion": 0.015},
 }
 
 
@@ -74,7 +79,9 @@ def _estimate_cost(model: str, prompt_tokens: int, completion_tokens: int) -> fl
                 break
     if not pricing:
         return 0.0
-    return (prompt_tokens * pricing["prompt"] + completion_tokens * pricing["completion"]) / 1000
+    return (
+        prompt_tokens * pricing["prompt"] + completion_tokens * pricing["completion"]
+    ) / 1000
 
 
 def _utcnow() -> str:
@@ -84,6 +91,7 @@ def _utcnow() -> str:
 # ---------------------------------------------------------------------------
 # Callback handler
 # ---------------------------------------------------------------------------
+
 
 class AgentLensCallback:
     """
@@ -99,7 +107,11 @@ class AgentLensCallback:
         metadata: Optional[dict[str, Any]] = None,
         timeout: float = 5.0,
     ) -> None:
-        self.api_url = (api_url or os.environ.get("AGENTLENS_API_URL") or "https://agentlens-blue.vercel.app").rstrip("/")
+        self.api_url = (
+            api_url
+            or os.environ.get("AGENTLENS_API_URL")
+            or "https://agentlens-blue.vercel.app"
+        ).rstrip("/")
         self.trace_name = trace_name
         self.trace_id = uuid.uuid4().hex
         self.metadata = metadata
@@ -149,7 +161,9 @@ class AgentLensCallback:
         logger.info("Trace started: %s (%s)", self.trace_name, self.trace_id)
         return self.trace_id
 
-    def on_trace_end(self, status: str = "success", error_message: Optional[str] = None) -> None:
+    def on_trace_end(
+        self, status: str = "success", error_message: Optional[str] = None
+    ) -> None:
         """Call once when the agent run finishes."""
         payload: dict[str, Any] = {
             "status": status,
@@ -183,7 +197,9 @@ class AgentLensCallback:
         payload = {
             "span_id": span_id,
             "trace_id": self.trace_id,
-            "parent_span_id": self._span_stack[-2] if len(self._span_stack) > 1 else None,
+            "parent_span_id": (
+                self._span_stack[-2] if len(self._span_stack) > 1 else None
+            ),
             "name": span_name,
             "span_type": "llm",
             "model": model,
@@ -217,12 +233,17 @@ class AgentLensCallback:
         self._total_cost += cost_usd
 
         # The API doesn't expose a PATCH for spans; create the span with final data.
-        # If the span was already created on_llm_start, the backend returns 409 (ignored).
-        # A more production-ready approach would add a PATCH /api/spans/{span_id} endpoint.
+        # If the span was already created on_llm_start,
+        # the backend returns 409 (ignored).
+        # A more production-ready approach would add a
+        # PATCH /api/spans/{span_id} endpoint.
         # For now, we log the final data for debugging.
         logger.info(
             "Span %s completed – %d prompt / %d completion tokens, $%.4f",
-            span_id, prompt_tokens, completion_tokens, cost_usd,
+            span_id,
+            prompt_tokens,
+            completion_tokens,
+            cost_usd,
         )
 
     def on_tool_start(self, tool_name: str, input_text: str = "") -> str:
@@ -234,7 +255,9 @@ class AgentLensCallback:
         payload = {
             "span_id": span_id,
             "trace_id": self.trace_id,
-            "parent_span_id": self._span_stack[-2] if len(self._span_stack) > 1 else None,
+            "parent_span_id": (
+                self._span_stack[-2] if len(self._span_stack) > 1 else None
+            ),
             "name": tool_name,
             "span_type": "tool",
             "input_text": input_text[:4000],

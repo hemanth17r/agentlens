@@ -1,20 +1,20 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 const STATUS_STYLES = {
-  running: "bg-warning/15 text-warning border border-warning/20",
-  success: "bg-success/15 text-success border border-success/20",
-  error:   "bg-danger/15 text-danger border border-danger/20",
+  running: 'bg-warning/15 text-warning border border-warning/20',
+  success: 'bg-success/15 text-success border border-success/20',
+  error: 'bg-danger/15 text-danger border border-danger/20',
 };
 
 const STATUS_DOT = {
-  running: "bg-warning animate-pulse-dot",
-  success: "bg-success",
-  error:   "bg-danger",
+  running: 'bg-warning animate-pulse-dot',
+  success: 'bg-success',
+  error: 'bg-danger',
 };
 
 function formatDuration(start, end) {
-  if (!start) return "–";
+  if (!start) return '–';
   const s = new Date(start);
   const e = end ? new Date(end) : new Date();
   const ms = e - s;
@@ -23,7 +23,7 @@ function formatDuration(start, end) {
 }
 
 function formatCost(cost) {
-  if (cost === 0) return "$0.00";
+  if (cost === 0) return '$0.00';
   if (cost < 0.01) return `$${cost.toFixed(4)}`;
   return `$${cost.toFixed(2)}`;
 }
@@ -31,13 +31,16 @@ function formatCost(cost) {
 export default function TraceList() {
   const [traces, setTraces] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState('all');
 
   const fetchTraces = async () => {
     try {
-      const url = filter === "all" ? "/api/traces?limit=100" : `/api/traces?status=${filter}&limit=100`;
+      const url =
+        filter === 'all'
+          ? '/api/traces?limit=100'
+          : `/api/traces?status=${filter}&limit=100`;
       const res = await fetch(url);
-      if (!res.ok) throw new Error("Failed to fetch traces");
+      if (!res.ok) throw new Error('Failed to fetch traces');
       setTraces(await res.json());
     } catch (err) {
       console.error(err);
@@ -53,10 +56,10 @@ export default function TraceList() {
   }, [filter]);
 
   const filters = [
-    { key: "all", label: "All" },
-    { key: "running", label: "Running" },
-    { key: "success", label: "Success" },
-    { key: "error", label: "Error" },
+    { key: 'all', label: 'All' },
+    { key: 'running', label: 'Running' },
+    { key: 'success', label: 'Success' },
+    { key: 'error', label: 'Error' },
   ];
 
   return (
@@ -70,7 +73,10 @@ export default function TraceList() {
           </p>
         </div>
         <button
-          onClick={() => { setLoading(true); fetchTraces(); }}
+          onClick={() => {
+            setLoading(true);
+            fetchTraces();
+          }}
           className="px-4 py-2 text-sm font-medium rounded-lg bg-accent/10 text-accent-light border border-accent/20 hover:bg-accent/20 transition-colors"
         >
           ↻ Refresh
@@ -85,8 +91,8 @@ export default function TraceList() {
             onClick={() => setFilter(f.key)}
             className={`px-3.5 py-1.5 text-xs font-medium rounded-full transition-all duration-200 ${
               filter === f.key
-                ? "bg-accent text-white shadow-glow"
-                : "bg-white/5 text-surface-200 hover:bg-white/10"
+                ? 'bg-accent text-white shadow-glow'
+                : 'bg-white/5 text-surface-200 hover:bg-white/10'
             }`}
           >
             {f.label}
@@ -101,23 +107,47 @@ export default function TraceList() {
         </div>
       ) : traces.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-64 text-surface-200/40">
-          <svg className="w-16 h-16 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={0.8}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m6 4.125l2.25 2.25m0 0l2.25 2.25M12 13.875l2.25-2.25M12 13.875l-2.25 2.25M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+          <svg
+            className="w-16 h-16 mb-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={0.8}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m6 4.125l2.25 2.25m0 0l2.25 2.25M12 13.875l2.25-2.25M12 13.875l-2.25 2.25M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"
+            />
           </svg>
           <p className="text-sm font-medium">No traces found</p>
-          <p className="text-xs mt-1">Use the SDK to start recording agent runs.</p>
+          <p className="text-xs mt-1">
+            Use the SDK to start recording agent runs.
+          </p>
         </div>
       ) : (
         <div className="bg-surface-800/40 backdrop-blur-sm rounded-xl border border-white/5 overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/5">
-                <th className="text-left px-5 py-3.5 text-xs font-semibold text-surface-200/60 uppercase tracking-wider">Name</th>
-                <th className="text-left px-5 py-3.5 text-xs font-semibold text-surface-200/60 uppercase tracking-wider">Status</th>
-                <th className="text-left px-5 py-3.5 text-xs font-semibold text-surface-200/60 uppercase tracking-wider">Model</th>
-                <th className="text-right px-5 py-3.5 text-xs font-semibold text-surface-200/60 uppercase tracking-wider">Tokens</th>
-                <th className="text-right px-5 py-3.5 text-xs font-semibold text-surface-200/60 uppercase tracking-wider">Cost</th>
-                <th className="text-right px-5 py-3.5 text-xs font-semibold text-surface-200/60 uppercase tracking-wider">Duration</th>
+                <th className="text-left px-5 py-3.5 text-xs font-semibold text-surface-200/60 uppercase tracking-wider">
+                  Name
+                </th>
+                <th className="text-left px-5 py-3.5 text-xs font-semibold text-surface-200/60 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="text-left px-5 py-3.5 text-xs font-semibold text-surface-200/60 uppercase tracking-wider">
+                  Model
+                </th>
+                <th className="text-right px-5 py-3.5 text-xs font-semibold text-surface-200/60 uppercase tracking-wider">
+                  Tokens
+                </th>
+                <th className="text-right px-5 py-3.5 text-xs font-semibold text-surface-200/60 uppercase tracking-wider">
+                  Cost
+                </th>
+                <th className="text-right px-5 py-3.5 text-xs font-semibold text-surface-200/60 uppercase tracking-wider">
+                  Duration
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
@@ -139,13 +169,17 @@ export default function TraceList() {
                     </p>
                   </td>
                   <td className="px-5 py-4">
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${STATUS_STYLES[trace.status] || ""}`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[trace.status] || ""}`} />
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${STATUS_STYLES[trace.status] || ''}`}
+                    >
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[trace.status] || ''}`}
+                      />
                       {trace.status}
                     </span>
                   </td>
                   <td className="px-5 py-4 text-surface-200/70 font-mono text-xs">
-                    {trace.model || "–"}
+                    {trace.model || '–'}
                   </td>
                   <td className="px-5 py-4 text-right tabular-nums text-surface-200/70">
                     {trace.total_tokens.toLocaleString()}
